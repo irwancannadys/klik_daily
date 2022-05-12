@@ -21,9 +21,11 @@ class _CartMainState extends State<CartMain> {
         viewModelBuilder: () => CartViewModel(),
         onModelReady: (CartViewModel viewModel) async {
           viewModel.getListFruit();
+          // viewModel.addValueList();
         },
         builder: (ctx, viewModel, child) {
           var list = viewModel.fruitCart;
+          // var list = viewModel.listFruit;
           return Scaffold(
             appBar: AppBar(
               backgroundColor: klikGreen,
