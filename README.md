@@ -17,7 +17,7 @@ For help getting started with Flutter, view our
 samples, guidance on mobile development, and a full API reference.
 
 ## Intsallation Application
-1. Get your apk in here [here](https://drive.google.com/file/d/1jeypKOm4_mN3IfRjtfpnbe07SEX_MgfU/view?usp=sharing)
+1. Get your apk in here [here](https://drive.google.com/drive/folders/1p1vs6fFZ6Tx2AXdTEAUCxr08rQdmhBNU?usp=sharing)
 2. Install your apk on your device
 3. And enjoy it !! 🥳 🎉
 
