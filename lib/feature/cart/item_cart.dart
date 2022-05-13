@@ -1,57 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:klik_daily/colors/klik_color.dart';
-import 'package:klik_daily/data/cart_data.dart';
+import 'package:klik_daily/data/item_cart_model.dart';
+import 'package:klik_daily/feature/cart/cart_view_model.dart';
+import 'package:klik_daily/utils/price_format.dart';
+import 'package:provider/provider.dart';
 
-import '../../data/fruit_cart.dart';
+class ItemCart extends StatelessWidget {
+  final ItemCartModel itemCartModel;
 
-class ItemCart extends StatefulWidget {
-  // Function onMinusCallback;
-  // Function onPlusCallback;
-  //
-  //
-  // ItemCart({required this.onMinusCallback, required this.onPlusCallback});
-
-  final FruitCart cartDataModel;
-  final Function(FruitCart) removeItemCart;
-
-  ItemCart({required this.cartDataModel, required this.removeItemCart});
-
-  @override
-  _ItemCartState createState() => _ItemCartState();
-}
-
-class _ItemCartState extends State<ItemCart> {
-  int valueCount = 0;
-
-  _incrementValuePrice() {
-    setState(() {
-      valueCount++;
-    });
-  }
-
-  _decrementValuePrice() {
-    setState(() {
-      if (valueCount <= 0) {
-        valueCount = 0;
-      } else {
-        valueCount--;
-      }
-    });
-  }
-
-  String calculateValue() {
-    int result = widget.cartDataModel.price * valueCount;
-    print(result);
-    return result.toString();
-  }
+  const ItemCart({required this.itemCartModel, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    calculateValue();
+    var fruitCartId = itemCartModel.fruitCart.id ?? 0;
     return Container(
-      margin: EdgeInsets.only(bottom: 8.0, left: 30, right: 30),
-      padding: EdgeInsets.only(top: 5.0, left: 10, bottom: 15, right: 10),
+      margin: const EdgeInsets.only(bottom: 8.0, left: 30, right: 30),
+      padding: const EdgeInsets.only(top: 5.0, left: 10, bottom: 15, right: 10),
       decoration: BoxDecoration(
         color: Colors.transparent,
         borderRadius: const BorderRadius.all(Radius.circular(10.0)),
@@ -60,19 +25,20 @@ class _ItemCartState extends State<ItemCart> {
       child: Column(
         children: [
           Container(
-            margin: EdgeInsets.only(bottom: 16.0),
+            margin: const EdgeInsets.only(bottom: 16.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  widget.cartDataModel.name,
-                  style: TextStyle(
+                  itemCartModel.fruitCart.name,
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 InkWell(
-                  onTap: (){
-                    widget.removeItemCart(widget.cartDataModel);
+                  onTap: () {
+                    context.read<CartViewModel>().removeItem(fruitCartId);
+                    context.read<CartViewModel>().getListFruit();
                   },
                   child: Image.asset("assets/remove.png"),
                 )
@@ -92,52 +58,48 @@ class _ItemCartState extends State<ItemCart> {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(8.0),
                       child: Image.asset(
-                        widget.cartDataModel.image,
+                        itemCartModel.fruitCart.image,
                         height: 64.0,
                         width: 55.0,
                       ),
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.only(left: 12.0),
+                    margin: const EdgeInsets.only(left: 12.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
-                          margin: EdgeInsets.only(bottom: 7.0),
+                          margin: const EdgeInsets.only(bottom: 7.0),
                           child: Text(
-                            widget.cartDataModel.name,
-                            style: TextStyle(
+                            itemCartModel.fruitCart.name,
+                            style: const TextStyle(
                               color: klikBlack,
                             ),
                           ),
                         ),
                         Container(
-                          margin: EdgeInsets.only(bottom: 9.0),
+                          margin: const EdgeInsets.only(bottom: 9.0),
                           child: Text(
-                            "Rp ${widget.cartDataModel.price}/kg",
-                            style: TextStyle(
+                            CurrencyFormat.convertToIdr(itemCartModel.fruitCart.price) + '/kg',
+                            style: const TextStyle(
                               fontSize: 18.0,
                               color: klikBlack,
                             ),
                           ),
                         ),
-                        Container(
-                          child: RatingBar.builder(
-                            itemSize: 14.0,
-                            initialRating: 3,
-                            minRating: 1,
-                            direction: Axis.horizontal,
-                            allowHalfRating: true,
-                            itemCount: 5,
-                            itemBuilder: (context, _) => const Icon(
-                              Icons.star,
-                              color: Colors.amber,
-                            ),
-                            onRatingUpdate: (rating) {
-                              print(rating);
-                            },
+                        RatingBar.builder(
+                          itemSize: 14.0,
+                          initialRating: itemCartModel.fruitCart.ratting.toDouble(),
+                          minRating: 1,
+                          direction: Axis.horizontal,
+                          allowHalfRating: true,
+                          itemCount: 5,
+                          itemBuilder: (context, _) => const Icon(
+                            Icons.star,
+                            color: Colors.amber,
                           ),
+                          onRatingUpdate: (rating) {},
                         )
                       ],
                     ),
@@ -145,15 +107,17 @@ class _ItemCartState extends State<ItemCart> {
                 ],
               ),
               Container(
-                  margin: EdgeInsets.only(right: 3.0),
+                  margin: const EdgeInsets.only(right: 3.0),
                   child: Row(
                     children: [
                       GestureDetector(
                         onTap: () {
-                          _decrementValuePrice();
+                          context
+                              .read<CartViewModel>()
+                              .decrementQuantity(fruitCartId);
                         },
                         child: Container(
-                          margin: EdgeInsets.only(right: 12.0),
+                          margin: const EdgeInsets.only(right: 12.0),
                           width: 30,
                           height: 24,
                           decoration: BoxDecoration(
@@ -162,18 +126,18 @@ class _ItemCartState extends State<ItemCart> {
                                 const BorderRadius.all(Radius.circular(10.0)),
                             border: Border.all(color: klikGreen),
                           ),
-                          child: Center(child: Text("-")),
+                          child: const Center(child: Text("-")),
                         ),
                       ),
-                      Container(
-                        child: Text(valueCount.toString()),
-                      ),
+                      Text(itemCartModel.count.toString()),
                       GestureDetector(
                         onTap: () {
-                          _incrementValuePrice();
+                          context
+                              .read<CartViewModel>()
+                              .incrementQuantity(fruitCartId);
                         },
                         child: Container(
-                          margin: EdgeInsets.only(left: 12.0),
+                          margin: const EdgeInsets.only(left: 12.0),
                           width: 30,
                           height: 24,
                           decoration: BoxDecoration(
@@ -182,7 +146,7 @@ class _ItemCartState extends State<ItemCart> {
                                 const BorderRadius.all(Radius.circular(10.0)),
                             border: Border.all(color: klikGreen),
                           ),
-                          child: Center(child: Text("+")),
+                          child: const Center(child: Text("+")),
                         ),
                       ),
                     ],

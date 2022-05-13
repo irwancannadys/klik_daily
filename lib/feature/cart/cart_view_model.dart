@@ -1,42 +1,55 @@
-
 import 'package:flutter/foundation.dart';
-import 'package:klik_daily/data/cart_data.dart';
-import 'package:klik_daily/data/fruit_cart.dart';
+import 'package:klik_daily/data/item_cart_model.dart';
 import 'package:klik_daily/database/klik_daily_database.dart';
 
 class CartViewModel extends ChangeNotifier {
-
-  List<CartDataModel> listFruit = [];
-  List<FruitCart> fruitCart = [];
-
-  int deleteIdCart = 0;
-
   final dbHelper = CartDataBase.instance;
+  var _itemCartModel = <ItemCartModel>[];
 
-  List<CartDataModel> addValueList() {
-    listFruit.add(CartDataModel("Sweet Apple Indonesia", "assets/apple.png", 20000, 3));
-    listFruit.add(CartDataModel("Sweet Apple Belanda", "assets/apple.png", 50000, 5));
-    listFruit.add(CartDataModel("Sweet Apple Canada", "assets/apple.png", 23000, 2));
-    listFruit.add(CartDataModel("Sweet Orange Belanda", "assets/oranges.png", 25000, 3));
-    listFruit.add(CartDataModel("Sweet Orange Germany", "assets/oranges.png", 50000, 3));
-    listFruit.add(CartDataModel("Sweet Banana USA", "assets/bananas.png", 70000, 3));
-    listFruit.add(CartDataModel("Sweet Banana London", "assets/bananas.png", 55000, 3));
-    listFruit.add(CartDataModel("Sweet Banana Swizz", "assets/bananas.png", 100000, 3));
-    return listFruit;
+  List<ItemCartModel> get itemCartModel => _itemCartModel;
+
+  String get totalPrice {
+    var result = 0;
+    for (var itemCart in _itemCartModel) {
+      result += itemCart.count * itemCart.fruitCart.price;
+    }
+    return result.toString();
   }
 
-  void removeItemCart(int position) {
-    listFruit.removeAt(position);
-    notifyListeners();
+  String get totalItem {
+    var result = 0;
+    for (var itemCart in _itemCartModel) {
+      result += itemCart.count;
+    }
+    return result.toString();
   }
 
   void getListFruit() async {
-    fruitCart = await dbHelper.readAllFruits();
+    _itemCartModel = [];
+    var fruitCartList = await dbHelper.readAllFruits();
+    for (var fruitCart in fruitCartList) {
+      _itemCartModel.add(ItemCartModel(fruitCart: fruitCart));
+    }
     notifyListeners();
   }
 
   void removeItem(int id) async {
     await dbHelper.delete(id);
+    notifyListeners();
+  }
+
+  void incrementQuantity(int cartId) {
+    var cart =
+        _itemCartModel.firstWhere((element) => element.fruitCart.id == cartId);
+    cart.count++;
+    notifyListeners();
+  }
+
+  void decrementQuantity(int cartId) {
+    var cart =
+        _itemCartModel.firstWhere((element) => element.fruitCart.id == cartId);
+    if (cart.count == 1) return;
+    cart.count--;
     notifyListeners();
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:klik_daily/colors/klik_color.dart';
 import 'package:klik_daily/data/fruit_data.dart';
+import 'package:klik_daily/utils/price_format.dart';
 
 class ItemProduct extends StatelessWidget {
   FruitData fruitData;
@@ -57,7 +58,7 @@ class ItemProduct extends StatelessWidget {
                     Container(
                       margin: EdgeInsets.only(bottom: 9.0),
                       child: Text(
-                        "Rp ${fruitData.price}/kg",
+                        CurrencyFormat.convertToIdr(fruitData.price) + '/kg',
                         style: TextStyle(
                           fontSize: 18.0,
                           color: klikBlack,

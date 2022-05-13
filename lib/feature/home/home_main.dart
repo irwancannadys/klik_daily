@@ -74,7 +74,7 @@ class _HomeMainViewState extends State<HomeMainView> {
                     _headerTitleProfileSection(viewModel),
                     _contentFilterSection(isClickedApple, isClickedOrange,
                         isClickedBanana, viewModel),
-                    Expanded(child: _listProductSection(viewModel)),
+                    Expanded(child: _listProductSection(viewModel, context)),
                   ],
                 ),
               ),
@@ -254,7 +254,7 @@ class _HomeMainViewState extends State<HomeMainView> {
     );
   }
 
-  Widget _listProductSection(HomeMainViewModel viewModel) {
+  Widget _listProductSection(HomeMainViewModel viewModel, BuildContext context) {
     var listFruits = viewModel.listFruit;
     return ListView.builder(
       shrinkWrap: true,
@@ -265,6 +265,13 @@ class _HomeMainViewState extends State<HomeMainView> {
             insertToShopCart(fruitData.name, fruitData.image, fruitData.price,
                 fruitData.ratting);
             print(fruitData.name);
+            final snackBar = SnackBar(
+              backgroundColor: klikGreen,
+              content: Text('Success add cart !', style: TextStyle(
+                color: klikWhite,
+              ),),
+            );
+            ScaffoldMessenger.of(context).showSnackBar(snackBar);
           },
         );
       },
